@@ -10,7 +10,8 @@
 
 namespace plt = matplotlibcpp;
 const int n = 50;
-const int approNode = 10;
+const int approNode = 15;
+const double approResolution = 10;
 const double resolution = 1;
 const double robotRadius = 2.0;
 
@@ -79,30 +80,23 @@ int main()
     bezier_curve bezier;
 
     int node;
-    for(int i=0; i<path_x.size()/approNode; i++){
+    for(int i=0; i<path_x.size()/approNode+1; i++){
         node = i*approNode;
         std::vector<double> p_x, p_y;
-        for(int j=0; j<approNode; j++){
-            p_x.push_back(path_x[node+j]);
-            p_y.push_back(path_y[node+j]);
+        if(i<path_x.size()/approNode){
+            for(int j=0; j<approNode; j++){
+                p_x.push_back(path_x[node+j]);
+                p_y.push_back(path_y[node+j]);
+            }
+        }else{
+            for(int j=0; j<path_x.size() - node; j++){
+                p_x.push_back(path_x[node+j]);
+                p_y.push_back(path_y[node+j]);
+            }
         }
+        
 
-        for (double t = 0; t <= 1.0; t += 0.01){
-            std::array<double, 2> point = bezier.getPos(t, p_x, p_y);
-            r_x.push_back(point[0]);
-            r_y.push_back(point[1]);
-        }
-    }
-
-    {
-        node += approNode;
-        std::vector<double> p_x, p_y;
-        for(int j=0; j<path_x.size() - node; j++){
-            p_x.push_back(path_x[node+j]);
-            p_y.push_back(path_y[node+j]);
-        }
-
-        for (double t = 0; t <= 1.0; t += 0.01){
+        for (double t = 0; t <= 1.0; t += (1/approResolution)){
             std::array<double, 2> point = bezier.getPos(t, p_x, p_y);
             r_x.push_back(point[0]);
             r_y.push_back(point[1]);
