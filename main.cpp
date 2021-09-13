@@ -2,10 +2,15 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <vector>
+#include<array>
 #include "include/matplotlibcpp.h"
 #include "include/a_star.h"
+#include "include/cubic_spline.h"
+#include "include/bezier_curve.h"
 
 namespace plt = matplotlibcpp;
+const int n = 50;
+const int approNode = 10;
 const double resolution = 1;
 const double robotRadius = 2.0;
 
@@ -43,7 +48,7 @@ void obstract_line(std::vector<std::vector<double>>& ob, double x1, double x2, d
 
 int main()
 {
-    const int n = 50;
+
     std::vector<double> goal_x{40};
     std::vector<double> goal_y{40};
     std::vector<double> goal{goal_x[0], goal_y[0]};
@@ -52,6 +57,8 @@ int main()
     std::vector<std::vector<double>> ob;
     std::vector<double> ob_x, ob_y;
     std::vector<double> path_x, path_y;
+    std::vector<double> r_x;
+    std::vector<double> r_y;
 
     obstract_line(ob, 0, 0, 0, n);
     obstract_line(ob, 0, n, n, n);
@@ -69,6 +76,38 @@ int main()
     }
 
     a_star.planning(path_x, path_y, ini_x[0], ini_y[0], goal_x[0], goal_y[0], ob_x, ob_y);
+    bezier_curve bezier;
+
+    int node;
+    for(int i=0; i<path_x.size()/approNode; i++){
+        node = i*approNode;
+        std::vector<double> p_x, p_y;
+        for(int j=0; j<approNode; j++){
+            p_x.push_back(path_x[node+j]);
+            p_y.push_back(path_y[node+j]);
+        }
+
+        for (double t = 0; t <= 1.0; t += 0.01){
+            std::array<double, 2> point = bezier.getPos(t, p_x, p_y);
+            r_x.push_back(point[0]);
+            r_y.push_back(point[1]);
+        }
+    }
+
+    {
+        node += approNode;
+        std::vector<double> p_x, p_y;
+        for(int j=0; j<path_x.size() - node; j++){
+            p_x.push_back(path_x[node+j]);
+            p_y.push_back(path_y[node+j]);
+        }
+
+        for (double t = 0; t <= 1.0; t += 0.01){
+            std::array<double, 2> point = bezier.getPos(t, p_x, p_y);
+            r_x.push_back(point[0]);
+            r_y.push_back(point[1]);
+        }
+    }
 
     // Clear previous plot
     plt::clf();
@@ -76,6 +115,7 @@ int main()
     plt::plot(goal_x, goal_y, "xb"); //goal
     plt::plot(ini_x, ini_y, "xb"); //start
     plt::plot(path_x, path_y); //path
+    plt::plot(r_x, r_y); //smooth path
 
     // Set x-axis to interval [0,n]
     plt::xlim(-10, n+10);
