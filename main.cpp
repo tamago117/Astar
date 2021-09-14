@@ -10,7 +10,7 @@
 
 namespace plt = matplotlibcpp;
 const int n = 50;
-const int approNode = 15;
+const int approNode = 20;
 const double approResolution = 10;
 const double resolution = 1;
 const double robotRadius = 2.0;

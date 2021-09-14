@@ -74,7 +74,7 @@ bool a_star::planning(std::vector<double>& fx, std::vector<double>& fy, double s
     std::vector<std::vector<int>> visit_map(xwidth, std::vector<int>(ywidth, 0));
     std::vector<std::vector<double>> path_cost(xwidth, std::vector<double>(ywidth, std::numeric_limits<double>::max()));
 
-    path_cost[nstart->x][nstart->y] = 0;
+    path_cost[nstart->x-min_ox][nstart->y-min_oy] = 0;
 
     std::vector<std::vector<int> > obmap = calc_obstacle_map(ox_idx, oy_idx, min_ox, max_ox, min_oy, max_oy);
 
@@ -113,7 +113,7 @@ bool a_star::planning(std::vector<double>& fx, std::vector<double>& fy, double s
         for(int i=0; i<motion.size(); i++){
             //search new node according to motion model
             Node* new_node = new Node{node->x + motion[i].x, node->y + motion[i].y,
-                           path_cost[node->x][node->y] + motion[i].sum_cost + w_gain*sqrt(pow(ngoal->x - node->x, 2) + pow(ngoal->y - node->y, 2)),
+                           path_cost[node->x-min_ox][node->y-min_oy] + motion[i].sum_cost + w_gain*sqrt(pow(ngoal->x - node->x, 2) + pow(ngoal->y - node->y, 2)),
                            node};
 
             //avoid obstract area
@@ -129,8 +129,8 @@ bool a_star::planning(std::vector<double>& fx, std::vector<double>& fy, double s
             }
 
             //select min cost path
-            if (path_cost[node->x][node->y]+motion[i].sum_cost < path_cost[new_node->x][new_node->y]){
-                path_cost[new_node->x][new_node->y]=path_cost[node->x][node->y]+motion[i].sum_cost;
+            if (path_cost[node->x-min_ox][node->y-min_oy]+motion[i].sum_cost < path_cost[new_node->x-min_ox][new_node->y-min_oy]){
+                path_cost[new_node->x-min_ox][new_node->y-min_oy]=path_cost[node->x-min_ox][node->y-min_oy]+motion[i].sum_cost;
                 pq.push(new_node);
             }
         }
