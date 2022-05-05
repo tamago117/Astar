@@ -130,7 +130,7 @@ bool a_star::planning(std::vector<double>& fx, std::vector<double>& fy, double s
 
             //select min cost path
             if (path_cost[node->x-min_ox][node->y-min_oy]+motion[i].sum_cost < path_cost[new_node->x-min_ox][new_node->y-min_oy]){
-                path_cost[new_node->x-min_ox][new_node->y-min_oy]=path_cost[node->x-min_ox][node->y-min_oy]+motion[i].sum_cost;
+                path_cost[new_node->x-min_ox][new_node->y-min_oy] = new_node->sum_cost;
                 pq.push(new_node);
             }
         }
